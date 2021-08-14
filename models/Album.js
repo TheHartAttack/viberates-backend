@@ -446,6 +446,14 @@ Album.getTopRated = function (numberOfDays, offset, resultCount) {
         },
 
         {
+          $match: {
+            reviews: {
+              $not: {$size: 0}
+            }
+          }
+        },
+
+        {
           $project: {
             title: true,
             slug: true,

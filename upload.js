@@ -29,6 +29,7 @@ const fileTransform = (req, file, cb) => {
       cb(
         null,
         sharp()
+          .rotate()
           .resize(500 * req.header.ratio, 500)
           .withMetadata()
           .jpeg({quality: 100})

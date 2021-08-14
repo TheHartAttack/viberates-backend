@@ -23,7 +23,7 @@ const fileFilter = (req, file, cb) => {
 
 const fileTransform = (req, file, cb) => {
   if (req.header.filePath == "user") {
-    cb(null, sharp().resize(250, 250).jpeg({quality: 100}))
+    cb(null, sharp().rotate().resize(250, 250).jpeg({quality: 100}))
   } else {
     if (req.header.ratio) {
       cb(
@@ -31,11 +31,10 @@ const fileTransform = (req, file, cb) => {
         sharp()
           .rotate()
           .resize(500 * req.header.ratio, 500)
-          .withMetadata()
           .jpeg({quality: 100})
       )
     } else {
-      cb(null, sharp().resize(500, 500).jpeg({quality: 100}))
+      cb(null, sharp().rotate().resize(500, 500).jpeg({quality: 100}))
     }
   }
 }

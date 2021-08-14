@@ -145,7 +145,10 @@ Review.prototype.register = function (user, artistSlug, albumSlug) {
         .insertOne(this.data)
         .then(result => {
           this.data._id = result.insertedId.toString()
-          resolve(this.data)
+          resolve({
+            review: this.data,
+            album: album
+          })
         })
         .catch(error => {
           this.errors.push(error)

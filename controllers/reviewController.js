@@ -8,8 +8,8 @@ exports.addReview = async function (req, res) {
 
     res.json({
       success: true,
-      message: `Successfully posted review of ${response.title}.`,
-      review: response
+      message: `Successfully posted review of ${response.album.title}.`,
+      review: response.review
     })
   } catch (e) {
     res.json({

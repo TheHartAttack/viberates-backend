@@ -78,7 +78,7 @@ const upload = multer({
   fileFilter,
   storage: multerS3({
     s3,
-    bucket: "album-reviews",
+    bucket: "viberates",
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
       cb(null, /^image/i.test(file.mimetype))

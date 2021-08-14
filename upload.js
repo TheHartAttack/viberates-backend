@@ -30,6 +30,7 @@ const fileTransform = (req, file, cb) => {
         null,
         sharp()
           .resize(500 * req.header.ratio, 500)
+          .withMetadata()
           .jpeg({quality: 100})
       )
     } else {

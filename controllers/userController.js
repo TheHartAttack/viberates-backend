@@ -393,7 +393,7 @@ exports.loadMoreReviews = async function (req, res) {
 
 exports.getHome = async function (req, res) {
   try {
-    const [hotAlbums, topRated, newReleases, recentReviews, topUsers] = await Promise.all([Album.getHotAlbums(90, 0, 24), Album.getTopRated(Infinity, 0, 24), Album.getNewReleases(0, 24), Review.getRecent(0, 12), User.getTopUsers(0, 6)])
+    const [hotAlbums, topRated, newReleases, recentReviews, topUsers] = await Promise.all([Album.getHotAlbums(90, 0, 24), Album.getTopRated("all", new Date().getFullYear(), 0, 24), Album.getNewReleases(0, 24), Review.getRecent(0, 12), User.getTopUsers(0, 6)])
 
     res.json({
       success: true,
@@ -433,13 +433,24 @@ exports.getHotAlbums = async function (req, res) {
 
 exports.getTopRated = async function (req, res) {
   try {
-    const topRated = await Album.getTopRated(req.body.option, req.body.offset, 24)
+    let option
+    if (req.body.type == "year") {
+      option = req.body.yearOption
+    } else if (req.body.type == "decade") {
+      option = req.body.decadeOption
+    } else {
+      option = null
+    }
+
+    const [topRated, dates] = await Promise.all([Album.getTopRated(req.body.type, option, req.body.offset, 24), Album.getYearsWithReleases()])
 
     res.json({
       success: true,
       message: "Top rated loaded",
       albums: topRated.albums,
-      moreAlbums: topRated.moreAlbums
+      moreAlbums: topRated.moreAlbums,
+      years: dates.years,
+      decades: dates.decades
     })
   } catch (e) {
     console.log(e)

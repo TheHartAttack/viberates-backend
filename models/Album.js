@@ -406,70 +406,72 @@ Album.getHotAlbums = function (numberOfDays, offset, resultCount) {
   })
 }
 
-Album.getTopRated = function (numberOfDays, offset, resultCount) {
+Album.getTopRated = function (type, option, offset, resultCount) {
   return new Promise(async function (resolve, reject) {
-    if (numberOfDays < 0) {
-      numberOfDays = Infinity
+    let prefixOps = []
+
+    if (type == "year") {
+      prefixOps.push({
+        $match: {
+          releaseDate: {
+            $gte: new Date(Number(option), 0, 1),
+            $lt: new Date(Number(option) + 1, 0, 1)
+          }
+        }
+      })
+    } else if (type == "decade") {
+      prefixOps.push({
+        $match: {
+          releaseDate: {
+            $gte: new Date(Number(option), 0, 1),
+            $lt: new Date(Number(option) + 10, 0, 1)
+          }
+        }
+      })
     }
 
-    let albums = await albumsCollection
-      .aggregate([
-        {
-          $match: {
-            releaseDate: {
-              $gte: new Date(Date.now() - 1000 * 60 * 60 * 24 * numberOfDays),
-              $lte: new Date()
-            }
-          }
-        },
+    let aggOps = [
+      {
+        $lookup: {
+          from: "artists",
+          localField: "artist",
+          foreignField: "_id",
+          as: "artist"
+        }
+      },
 
-        {
-          $lookup: {
-            from: "artists",
-            localField: "artist",
-            foreignField: "_id",
-            as: "artist"
-          }
-        },
+      {
+        $unwind: "$artist"
+      },
 
-        {
-          $unwind: "$artist"
-        },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "album",
+          as: "reviews"
+        }
+      },
 
-        {
-          $lookup: {
-            from: "reviews",
-            localField: "_id",
-            foreignField: "album",
-            as: "reviews"
-          }
-        },
+      {
+        $project: {
+          title: true,
+          slug: true,
+          type: true,
+          releaseDate: true,
+          image: true,
+          artist: "$artist",
+          rating: {$trunc: [{$avg: "$reviews.rating"}, 1]},
+          reviewCount: {$size: "$reviews"}
+        }
+      },
 
-        {
-          $match: {
-            reviews: {
-              $not: {$size: 0}
-            }
-          }
-        },
+      {$sort: {rating: -1, reviewCount: -1, releaseDate: -1}},
+      {$skip: offset},
+      {$limit: resultCount + 1}
+    ]
 
-        {
-          $project: {
-            title: true,
-            slug: true,
-            type: true,
-            releaseDate: true,
-            image: true,
-            artist: "$artist",
-            rating: {$trunc: [{$avg: "$reviews.rating"}, 1]}
-          }
-        },
-
-        {$sort: {rating: -1, releaseDate: 1}},
-        {$skip: offset},
-        {$limit: resultCount + 1}
-      ])
-      .toArray()
+    let albums = await albumsCollection.aggregate(prefixOps.concat(aggOps)).toArray()
 
     //Check if more albums
     let moreAlbums
@@ -922,6 +924,39 @@ Album.search = function (searchTerm) {
       resolve(albums)
     } else {
       resolve([])
+    }
+  })
+}
+
+Album.getYearsWithReleases = function () {
+  return new Promise(async (resolve, reject) => {
+    //Get dates of all albums in database
+    const dates = await albumsCollection.distinct("releaseDate")
+
+    //Create array of unique years with album releases plus current year
+    let yearsArray = dates.map(date => {
+      return date.getFullYear()
+    })
+    yearsArray.push(new Date().getFullYear())
+    const years = [...new Set(yearsArray)]
+
+    //Create array of unique decades with albums releases plus current decade
+    let decadesArray = dates.map(date => {
+      return Math.floor(date.getFullYear() / 10) * 10
+    })
+    decadesArray.push(Math.floor(new Date().getFullYear() / 10) * 10)
+    const decades = [...new Set(decadesArray)]
+
+    if (years && decades) {
+      resolve({
+        years,
+        decades
+      })
+    } else {
+      resolve({
+        years: [],
+        decades: []
+      })
     }
   })
 }

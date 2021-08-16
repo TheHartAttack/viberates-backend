@@ -504,7 +504,7 @@ User.resetPassword = function (email) {
       await usersCollection.updateOne({email: email}, {$set: {password: hashedPassword}})
 
       const transporter = nodemailer.createTransport({
-        host: "mail.thehartattack.com",
+        host: "mail.viberat.es",
         port: 465,
         secure: true,
         auth: {
@@ -734,7 +734,7 @@ User.contactAdmin = function (message) {
       }
 
       const transporter = nodemailer.createTransport({
-        host: "mail.thehartattack.com",
+        host: "mail.viberat.es",
         port: 465,
         secure: true,
         auth: {

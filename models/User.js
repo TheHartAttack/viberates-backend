@@ -508,7 +508,7 @@ User.resetPassword = function (email) {
         port: 465,
         secure: true,
         auth: {
-          user: process.env.EMAIL,
+          user: process.env.ADMINEMAIL,
           pass: process.env.EMAILPASS
         },
         tls: {
@@ -519,7 +519,7 @@ User.resetPassword = function (email) {
       const mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: `Your new ${process.env.SITENAME} password`,
+        subject: `Your new VibeRates password`,
         text: newPassword,
         html: `
         Your new password is: <strong>${newPassword}</strong>
@@ -738,7 +738,7 @@ User.contactAdmin = function (message) {
         port: 465,
         secure: true,
         auth: {
-          user: process.env.EMAIL,
+          user: process.env.CONTACTEMAIL,
           pass: process.env.EMAILPASS
         },
         tls: {
@@ -748,8 +748,8 @@ User.contactAdmin = function (message) {
 
       const mailOptions = {
         from: `${message.username} <${message.email}>`,
-        to: "thehartattack@hotmail.co.uk",
-        subject: `Message from ${process.env.SITENAME} user - ${message.username} [${message.email}]`,
+        to: process.env.DANEMAIL,
+        subject: `Message from VibeRates user - ${message.username} [${message.email}]`,
         text: message.content,
         html: `
           ${message.content}
@@ -765,7 +765,7 @@ User.contactAdmin = function (message) {
       resolve(info)
     } catch (e) {
       console.log(e)
-      reject(e)
+      reject("Server error.")
     }
   })
 }

@@ -393,7 +393,7 @@ exports.loadMoreReviews = async function (req, res) {
 
 exports.getHome = async function (req, res) {
   try {
-    const [hotAlbums, topRated, newReleases, recentReviews, topUsers] = await Promise.all([Album.getHotAlbums(90, 0, 24), Album.getTopRated("all", new Date().getFullYear(), 0, 24), Album.getNewReleases(0, 24), Review.getRecent(0, 12), User.getTopUsers(0, 6)])
+    const [hotAlbums, topRated, newReleases, recentReviews, topUsers] = await Promise.all([Album.getHotAlbums(90, 0, 12), Album.getTopRated("all", new Date().getFullYear(), 0, 12), Album.getNewReleases(0, 12), Review.getRecent(0, 12), User.getTopUsers(0, 6)])
 
     res.json({
       success: true,

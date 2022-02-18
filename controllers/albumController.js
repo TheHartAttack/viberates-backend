@@ -133,3 +133,19 @@ exports.revertEdit = async function (req, res) {
     })
   }
 }
+
+exports.deleteAlbum = async function (req, res) {
+  try {
+    const deleteAlbum = await Album.delete(req.user._id, req.body.albumId)
+
+    res.json({
+      success: true,
+      message: `${req.body.albumTitle} has been deleted.`
+    })
+  } catch (e) {
+    res.json({
+      success: false,
+      message: e
+    })
+  }
+}

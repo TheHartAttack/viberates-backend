@@ -132,6 +132,7 @@ Artist.reusableArtistQuery = function (uniqueOperations) {
           from: "albums",
           let: {artist: "$_id"},
           pipeline: [
+            {$match: {deleted: false}},
             {$match: {$expr: {$eq: ["$artist", "$$artist"]}}},
 
             {
@@ -195,6 +196,7 @@ Artist.reusableArtistQuery = function (uniqueOperations) {
           from: "albums",
           let: {artist: "$_id"},
           pipeline: [
+            {$match: {deleted: false}},
             {$match: {$expr: {$eq: ["$artist", "$$artist"]}}},
 
             {

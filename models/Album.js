@@ -102,6 +102,7 @@ Album.prototype.register = function (user, artistSlug) {
           date: new Date(),
           user: new ObjectID(user._id),
           initial: true,
+          deleted: false,
           data: {
             title: this.data.title,
             releaseDate: this.data.releaseDate,
@@ -145,6 +146,7 @@ Album.prototype.edit = async function (user, targetAlbum) {
           date: new Date(),
           user: new ObjectID(user._id),
           initial: false,
+          deleted: false,
           data: {
             title: this.data.title,
             releaseDate: this.data.releaseDate,
@@ -170,6 +172,12 @@ Album.prototype.edit = async function (user, targetAlbum) {
 Album.reusableAlbumQuery = function (uniqueOperations) {
   return new Promise(async (resolve, reject) => {
     let aggOperations = uniqueOperations.concat([
+      {
+        $match: {
+          deleted: false
+        }
+      },
+
       {
         $lookup: {
           from: "artists",
@@ -325,6 +333,8 @@ Album.getHotAlbums = function (numberOfDays, offset, resultCount) {
   return new Promise(async function (resolve, reject) {
     let albums = await albumsCollection
       .aggregate([
+        {$match: {deleted: false}},
+
         {
           $lookup: {
             from: "artists",
@@ -408,7 +418,7 @@ Album.getHotAlbums = function (numberOfDays, offset, resultCount) {
 
 Album.getTopRated = function (type, option, offset, resultCount) {
   return new Promise(async function (resolve, reject) {
-    let prefixOps = []
+    let prefixOps = [{$match: {deleted: false}}]
 
     if (type == "year") {
       prefixOps.push({
@@ -497,6 +507,7 @@ Album.getNewReleases = function (offset, resultCount) {
   return new Promise(async function (resolve, reject) {
     let albums = await albumsCollection
       .aggregate([
+        {$match: {deleted: false}},
         {$match: {releaseDate: {$lte: new Date(Date.now())}}},
         {$sort: {releaseDate: -1}},
         {$skip: offset},
@@ -573,6 +584,8 @@ Album.getByTagSlug = function (tagSlug, option, offset, resultCount) {
     }
 
     const mainOps = [
+      {$match: {deleted: false}},
+
       {
         $lookup: {
           from: "artists",
@@ -957,6 +970,18 @@ Album.getYearsWithReleases = function () {
         years: [],
         decades: []
       })
+    }
+  })
+}
+
+Album.delete = function (userId, albumId) {
+  return new Promise(async (resolve, reject) => {
+    const deleted = await albumsCollection.updateOne({_id: new ObjectID(albumId)}, {$set: {deleted: new ObjectID(userId)}})
+
+    if (deleted) {
+      resolve(deleted)
+    } else {
+      reject("Server error.")
     }
   })
 }

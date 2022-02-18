@@ -53,6 +53,7 @@ router.post("/edit/artist/:artist/album/:album", userController.isLoggedIn, user
 router.get("/artist/:artist/album/:album", albumController.getAlbumBySlug)
 router.post("/edit-history/artist/:artist/album/:album", albumController.getAlbumEditHistory)
 router.post("/revert/album", userController.isLoggedIn, userController.isNotSuspended, albumController.revertEdit)
+router.post("/deleteAlbum", userController.isLoggedIn, userController.isNotSuspended, userController.isAdminOrMod, albumController.deleteAlbum)
 
 //Review routes
 router.post("/add-review/:artist/:album", userController.isLoggedIn, userController.isNotSuspended, reviewController.addReview)

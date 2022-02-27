@@ -43,7 +43,8 @@ Album.prototype.cleanUp = function () {
     image: this.data.image,
     releaseDate: new Date(this.data.releaseDate),
     type: this.data.type,
-    label: this.data.label
+    label: this.data.label,
+    deleted: false
   }
 }
 

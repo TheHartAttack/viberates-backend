@@ -5,7 +5,8 @@
   "main": "db.js",
   "scripts": {
     "start": "node db",
-    "watch": "nodemon db"
+    "watch": "nodemon db",
+    "build": ""
   },
   "keywords": [],
   "author": "",

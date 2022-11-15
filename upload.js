@@ -81,7 +81,7 @@ const upload = multer({
     s3,
     bucket: "viberates",
     acl: "public-read",
-    contentType: multerS3.AUTO_CONTENT_TYPE,
+    contentType: req.file.mimetype,
     shouldTransform: function (req, file, cb) {
       cb(null, /^image/i.test(file.mimetype))
     },

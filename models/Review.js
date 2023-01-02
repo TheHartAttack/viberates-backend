@@ -12,10 +12,6 @@ let Review = function (data) {
 
 Review.prototype.cleanUp = function () {
   return new Promise(async (resolve, reject) => {
-    if (typeof this.data.title != "string") {
-      this.data.title = ""
-    }
-
     if (typeof this.data.summary != "string") {
       this.data.summary = ""
     }
@@ -28,8 +24,10 @@ Review.prototype.cleanUp = function () {
       this.data.tags = []
     }
 
+    this.data.tags = this.data.tags.slice(0, 3)
+
     this.data.tags.forEach((tag, index) => {
-      if (typeof tag != "string" || tag == "") {
+      if (typeof tag != "string" || tag == "" || !tag) {
         this.data.tags.splice(index, 1)
       }
     })
@@ -48,7 +46,6 @@ Review.prototype.cleanUp = function () {
 
     //Get rid of any bogus properties
     this.data = {
-      title: this.data.title.trim(),
       summary: this.data.summary.trim(),
       review: this.data.review.trim(),
       rating: Math.floor(this.data.rating),
@@ -84,14 +81,6 @@ Review.prototype.cleanUp = function () {
 }
 
 Review.prototype.validate = function () {
-  //Validate title
-  if (this.data.title == "") {
-    this.errors.push("You must provide a review title.")
-  }
-  if (this.data.title.length > 128) {
-    this.errors.push("Review title cannot exceed 128 characters.")
-  }
-
   //Validate summary
   if (this.data.summary == "") {
     this.errors.push("You must provide a review summary.")
@@ -167,9 +156,8 @@ Review.prototype.edit = function (targetReview) {
     this.validate()
 
     //Check that edit data is different from existing database data
-    if (targetReview.title == this.data.title && targetReview.summary == this.data.summary && targetReview.review == this.data.review && targetReview.tags == this.data.tags && targetReview.rating == this.data.rating) {
-      console.log("Data unchanged")
-      resolve(targetReview)
+    if (targetReview.summary == this.data.summary && targetReview.review == this.data.review && targetReview.tags == this.data.tags && targetReview.rating == this.data.rating) {
+      resolve({data: targetReview, changes: false})
       return
     }
 
@@ -178,7 +166,7 @@ Review.prototype.edit = function (targetReview) {
       const reviewsUpdate = reviewsCollection
         .updateOne({_id: targetReview._id}, {$set: this.data})
         .then(() => {
-          resolve(this.data)
+          resolve({data: this.data, changes: true})
         })
         .catch(error => {
           this.errors.push(error)
@@ -319,7 +307,6 @@ Review.reusableReviewQuery = function (uniqueOperations) {
 
       {
         $project: {
-          title: true,
           summary: true,
           review: true,
           rating: true,
@@ -498,7 +485,6 @@ Review.getRecent = function (offset, resultCount) {
 
         {
           $project: {
-            title: true,
             summary: true,
             review: true,
             rating: true,

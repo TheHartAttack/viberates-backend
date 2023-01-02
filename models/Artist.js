@@ -96,6 +96,17 @@ Artist.prototype.edit = async function (user, targetArtist) {
       return
     }
 
+    //Check that artist name is not a duplicate
+    let artistExists = await artistsCollection.findOne({slug: this.data.slug})
+    if (artistExists) {
+      resolve({
+        success: false,
+        message: `The database already contains an artist called ${targetArtist.name}.`,
+        artist: this.data
+      })
+      return
+    }
+
     //Update database
     if (!this.errors.length) {
       try {
@@ -113,7 +124,13 @@ Artist.prototype.edit = async function (user, targetArtist) {
 
         await Promise.all([artistsCollection.updateOne({_id: targetArtist._id}, {$set: this.data}), artistEditsCollection.insertOne(editObject)])
 
-        resolve(this.data)
+        resolve({
+          success: true,
+          message: `${this.data.name} has been updated.`,
+          artist: this.data,
+          date: editObject.date,
+          changes: true
+        })
       } catch (e) {
         this.errors.push(e)
         reject(this.errors)
@@ -178,6 +195,7 @@ Artist.reusableArtistQuery = function (uniqueOperations) {
                 slug: true,
                 image: true,
                 releaseDate: true,
+                tracklist: true,
                 label: true,
                 type: true,
                 reviews: true,
@@ -213,7 +231,7 @@ Artist.reusableArtistQuery = function (uniqueOperations) {
                     }
                   },
                   {$sort: {count: -1, _id: 1}},
-                  {$limit: 3}
+                  {$limit: 5}
                 ],
                 as: "reviewTags"
               }
@@ -287,17 +305,21 @@ Artist.reusableArtistQuery = function (uniqueOperations) {
 
 Artist.getBySlug = function (artistSlug) {
   return new Promise(async function (resolve, reject) {
-    if (typeof artistSlug != "string") {
-      reject()
-      return
-    }
+    try {
+      if (typeof artistSlug != "string") {
+        reject()
+        return
+      }
 
-    const artist = await Artist.reusableArtistQuery([{$match: {slug: artistSlug}}])
+      const artist = await Artist.reusableArtistQuery([{$match: {slug: artistSlug}}])
 
-    if (artist) {
-      resolve(artist)
-    } else {
-      reject("Artist not found.")
+      if (artist) {
+        resolve(artist)
+      } else {
+        reject("Artist not found.")
+      }
+    } catch (e) {
+      reject(e)
     }
   })
 }
@@ -416,6 +438,23 @@ Artist.revert = function (editId, user) {
       .toArray()
     edit = edit[0]
 
+    //Check that artist name is not a duplicate
+    let targetArtist = await Artist.reusableArtistQuery([{$match: {_id: edit.target._id}}])
+    let artistExists = await artistsCollection.findOne({
+      slug: slugify(edit.data.name, {
+        lower: true,
+        strict: true
+      })
+    })
+    if (artistExists) {
+      resolve({
+        success: false,
+        message: `The database already contains an artist called ${targetArtist.name}.`,
+        artist: this.data
+      })
+      return
+    }
+
     //Reject if user already edited within last minute
     if (!user.type.includes("mod") || !user.type.includes("admin")) {
       const lastEditByCurrentUser = await artistEditsCollection
@@ -481,6 +520,7 @@ Artist.revert = function (editId, user) {
             initial: false,
             data: {
               name: revert.name,
+              slug: revert.slug,
               image: revert.image
             }
           }

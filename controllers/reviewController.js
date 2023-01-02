@@ -27,7 +27,8 @@ exports.editReview = async function (req, res) {
     res.json({
       success: true,
       message: `Your review of ${req.review.album.title} has been updated.`,
-      review: response
+      review: response.data,
+      changes: response.changes
     })
   } catch (e) {
     console.log(e)

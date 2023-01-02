@@ -26,11 +26,7 @@ exports.editArtist = async function (req, res) {
     let targetArtist = await Artist.getBySlug(req.params.artist)
     let response = await artist.edit(req.user, targetArtist)
 
-    res.json({
-      success: true,
-      message: `${response.name} has been updated.`,
-      artist: response
-    })
+    res.json(response)
   } catch (e) {
     res.json({
       success: false,

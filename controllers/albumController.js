@@ -8,13 +8,8 @@ exports.addAlbum = async function (req, res) {
     let album = new Album(req.body)
     let response = await album.register(req.user, req.params.artist)
 
-    res.json({
-      success: true,
-      message: `${response.title} has been added to the database.`,
-      album: response
-    })
+    res.json(response)
   } catch (e) {
-    console.log(e)
     res.json({
       success: false,
       message: e
@@ -28,13 +23,13 @@ exports.editAlbum = async function (req, res) {
     let targetAlbum = await Album.getBySlug(req.params.artist, req.params.album)
     let response = await album.edit(req.user, targetAlbum)
 
-    res.json({
-      success: true,
-      message: `${response.title} has been updated.`,
-      album: response
-    })
+    res.json(response)
   } catch (e) {
-    res.json(e)
+    console.log(e)
+    res.json({
+      success: false,
+      message: e
+    })
   }
 }
 
@@ -94,7 +89,6 @@ exports.getAlbumsByTag = async function (req, res) {
       morealbums: results.moreAlbums
     })
   } catch (e) {
-    console.log(e)
     res.json({
       success: false,
       message: e
@@ -116,7 +110,7 @@ exports.getAlbumEditHistory = async function (req, res) {
   } catch (e) {
     res.json({
       success: false,
-      message: e
+      message: "Album not found."
     })
   }
 }

@@ -739,9 +739,8 @@ User.contactAdmin = function (message) {
       }
 
       const transporter = nodemailer.createTransport({
-        host: "mail.viberat.es",
-        // port: 465,
-        port: 2079,
+        host: "cpanel63.fastsecurehost.com",
+        port: 465,
         secure: true,
         auth: {
           user: process.env.CONTACTEMAIL,

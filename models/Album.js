@@ -132,12 +132,12 @@ Album.prototype.register = function (user, artistSlug) {
         await albumEditsCollection.insertOne(editObject)
 
         resolve({
-          success: false,
-          message: `${response.title} has been added to the database.`,
+          success: true,
+          message: `${this.data.title} has been added to the database.`,
           album: this.data
         })
       } else {
-        reject(this.errors)
+        reject(this.errors[0])
       }
     } catch (e) {
       this.errors.push(e)

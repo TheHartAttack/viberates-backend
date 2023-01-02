@@ -10,6 +10,7 @@ exports.addAlbum = async function (req, res) {
 
     res.json(response)
   } catch (e) {
+    console.log(e)
     res.json({
       success: false,
       message: e

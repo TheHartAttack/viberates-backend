@@ -92,7 +92,11 @@ Artist.prototype.edit = async function (user, targetArtist) {
 
     //Check that edit data is different from existing database data
     if (targetArtist.name == this.data.name && targetArtist.image == this.data.image) {
-      resolve(targetArtist)
+      resolve({
+        success: true,
+        artist: targetArtist,
+        message: `${this.data.name} has been updated.`
+      })
       return
     }
 

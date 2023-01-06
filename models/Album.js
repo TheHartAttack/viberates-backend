@@ -156,7 +156,8 @@ Album.prototype.edit = async function (user, targetAlbum) {
       //Check that edit data is different from existing database data
       if (targetAlbum.title == this.data.title && targetAlbum.image == this.data.image && targetAlbum.label == this.data.label && targetAlbum.type == this.data.type && targetAlbum.releaseDate.getDate() == this.data.releaseDate.getDate() && targetAlbum.releaseDate.getMonth() == this.data.releaseDate.getMonth() && targetAlbum.releaseDate.getFullYear() == this.data.releaseDate.getFullYear() && lodash.isEqual(targetAlbum.tracklist, this.data.tracklist)) {
         resolve({
-          data: targetAlbum,
+          success: true,
+          album: targetAlbum,
           changes: false
         })
         return

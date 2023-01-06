@@ -12,7 +12,7 @@ const cors = require("cors")
 
 router.use(cors())
 
-router.get("/", (req, res) => res.json("Hello, if you see this message that means your backend is up and running successfully. Congrats! Now let's continue learning React!"))
+router.get("/", (req, res) => res.redirect("https://viberat.es"))
 
 //Page routes
 router.get("/home", userController.getHome)
